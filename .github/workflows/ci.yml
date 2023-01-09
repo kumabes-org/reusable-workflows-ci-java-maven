@@ -48,8 +48,18 @@ jobs:
         with:
           maven-version: ${{ inputs.maven-version }}
       
-      - name: Maven clean and compile
-        run: mvn clean compile -Dmaven.test.skip=true
+      - name: Maven Clean and Package
+        run: |
+          echo "Antes de empacotar"
+          ls -lrth --color
+          mvn clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
+          echo "Depois de empacotar"
+          ls -lrth --color
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.project-name }}
+          path: ${{ github.workspace }}/${{ inputs.working-directory }}/target/
 
   Test:
     name: Test
@@ -72,7 +82,8 @@ jobs:
 
       - name: Maven clean and test
         run: |
-          mvn clean test
+          mvn clean test -f pom.xml -s settings.xml
+          mvn jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
 
       - uses: actions/upload-artifact@v3
         with:
