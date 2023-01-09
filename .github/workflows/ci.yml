@@ -82,13 +82,16 @@ jobs:
 
       - name: Maven clean and test
         run: |
+          echo "Antes de empacotar"
+          ls -lrth --color
           mvn clean test -f pom.xml -s settings.xml
           mvn jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
+          echo "Depois de empacotar"
+          ls -lrth --color
 
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.project-name }}
           path: |
-            ls -lrth --color
             ${{ github.workspace }}/${{ inputs.working-directory }}/target/jacoco.exec
             ${{ github.workspace }}/${{ inputs.working-directory }}/target/site
