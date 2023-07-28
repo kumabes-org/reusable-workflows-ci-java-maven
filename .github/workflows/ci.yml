@@ -60,7 +60,7 @@ jobs:
       
       - name: Maven Clean and Package
         run: |
-          if [[ ${{ env.setup_maven }} == true]]; then
+          if [[ ${{ env.setup_maven }} == true ]]; then
             echo "Utilizando do instalador"
             mvn clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
           else
@@ -104,7 +104,7 @@ jobs:
 
       - name: Maven Clean and Package
         run: |
-          if [[ ${{ env.setup_maven }} == true]]; then
+          if [[ ${{ env.setup_maven }} == true ]]; then
             echo "Utilizando do instalador"
             mvn clean test -f pom.xml -s settings.xml
             mvn jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
