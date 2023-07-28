@@ -53,7 +53,7 @@ jobs:
           fi
 
       - name: Set up Maven
-        if: ${ env.setup_maven }
+        if: ${{ env.setup_maven == true }}
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: ${{ inputs.maven-version }}
