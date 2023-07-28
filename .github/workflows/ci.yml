@@ -60,7 +60,7 @@ jobs:
       
       - name: Maven Clean and Package
         run: |
-          if [[ "${{ env.setup_maven }}" ]]; then
+          if [[ ${{ env.setup_maven }} ]]; then
             echo "Utilizando do instalador"
             mvn clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
           else
