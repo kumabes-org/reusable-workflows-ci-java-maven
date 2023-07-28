@@ -53,7 +53,7 @@ jobs:
           fi
 
       - name: Set up Maven
-        if: ${{ env.setup_maven }}
+        if: ${ env.setup_maven == true }
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: ${{ inputs.maven-version }}
@@ -61,9 +61,10 @@ jobs:
       - name: Maven Clean and Package
         run: |
           if [[ "${{ env.setup_maven }}" ]]; then
+            echo "Utilizando do instalador"
             mvn clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
           else
-            chmod +x ./mvnw
+            echo "Utilizando Wrapper"
             ./mvnw clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
           fi
 
