@@ -68,7 +68,6 @@ jobs:
             ./mvnw clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
           fi
 
-
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.project-name }}
@@ -87,20 +86,33 @@ jobs:
         with:
           distribution: ${{ inputs.java-distribution }}
           java-version: ${{ inputs.java-version }}
-      
+
+      - name: "Check Wrapper Exists"
+        run: |
+          count_maven=$(find . -type f -name pom.xml 2>/dev/null | wc -l)
+          if [ "${count_maven}" -ge "1" ]; then
+            echo "setup_maven=false" >> $GITHUB_ENV
+          else
+            echo "setup_maven=true" >> $GITHUB_ENV
+          fi      
+
       - name: Set up Maven
+        if: ${{ env.setup_maven == true }}
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: ${{ inputs.maven-version }}
 
-      - name: Maven clean and test
+      - name: Maven Clean and Package
         run: |
-          echo "Antes de empacotar"
-          ls -lrth --color
-          mvn clean test -f pom.xml -s settings.xml
-          mvn jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
-          echo "Depois de empacotar"
-          ls -lrth --color
+          if [[ ${{ env.setup_maven }} ]]; then
+            echo "Utilizando do instalador"
+            mvn clean test -f pom.xml -s settings.xml
+            mvn jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
+          else
+            echo "Utilizando Wrapper"
+            ./mvnw clean test -f pom.xml -s settings.xml
+            ./mvnw jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
+          fi
 
       - uses: actions/upload-artifact@v3
         with:
