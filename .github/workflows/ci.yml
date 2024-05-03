@@ -54,7 +54,7 @@ jobs:
 
       - name: Set up Maven
         if: ${{ env.setup_maven == true }}
-        uses: stCarolas/setup-maven@v4.3
+        uses: stCarolas/setup-maven@v4.5
         with:
           maven-version: ${{ inputs.maven-version }}
 
@@ -99,7 +99,7 @@ jobs:
 
   #     - name: Set up Maven
   #       if: ${{ env.setup_maven == true }}
-  #       uses: stCarolas/setup-maven@v4.3
+  #       uses: stCarolas/setup-maven@v4.5
   #       with:
   #         maven-version: ${{ inputs.maven-version }}
 
