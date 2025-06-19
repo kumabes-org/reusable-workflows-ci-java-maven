@@ -27,6 +27,14 @@ on:
       maven-version:
         required: true
         type: string
+      maven-build-parameters:
+        required: false
+        type: string
+        default: "-s settings.xml -f pom.xml"
+      maven-cli-opts:
+        required: false
+        type: string
+        default: "-T 1C --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true "
 
 jobs:
   Build:
@@ -45,7 +53,7 @@ jobs:
 
       - name: "Check Wrapper Exists"
         run: |
-          count_maven=$(find . -type f -name pom.xml 2>/dev/null | wc -l)
+          count_maven=$(find . -type f -name mvnw 2>/dev/null | wc -l)
           if [ "${count_maven}" -ge "1" ]; then
             echo "setup_maven=false" >> $GITHUB_ENV
           else
@@ -54,7 +62,7 @@ jobs:
 
       - name: Set up Maven
         if: ${{ env.setup_maven == true }}
-        uses: stCarolas/setup-maven@v4.5
+        uses: stCarolas/setup-maven@v5
         with:
           maven-version: ${{ inputs.maven-version }}
 
@@ -62,10 +70,10 @@ jobs:
         run: |
           if [[ ${{ env.setup_maven }} == true ]]; then
             echo "Utilizando do instalador"
-            mvn clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
+            mvn ${{ inputs.maven-cli-opts }} package -DskipTests -DskipITs ${{ inputs.maven-build-parameters }};
           else
             echo "Utilizando Wrapper"
-            ./mvnw clean package -DskipTests -DskipITs -f pom.xml -s settings.xml
+            ./mvnw ${{ inputs.maven-cli-opts }} package -DskipTests -DskipITs ${{ inputs.maven-build-parameters }};
           fi
 
       - uses: actions/upload-artifact@v4
@@ -74,50 +82,50 @@ jobs:
           path: |
             ${{ github.workspace }}/${{ inputs.working-directory }}/target/
 
-  # Test:
-  #   name: Test
-  #   runs-on: ${{ inputs.runs-on }}
-  #   defaults:
-  #     run:
-  #       shell: ${{ inputs.shell }}
-  #       working-directory: ${{ inputs.working-directory }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-java@v3
-  #       with:
-  #         distribution: ${{ inputs.java-distribution }}
-  #         java-version: ${{ inputs.java-version }}
+  Test:
+    name: Test
+    runs-on: ${{ inputs.runs-on }}
+    defaults:
+      run:
+        shell: ${{ inputs.shell }}
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: ${{ inputs.java-distribution }}
+          java-version: ${{ inputs.java-version }}
 
-  #     - name: "Check Wrapper Exists"
-  #       run: |
-  #         count_maven=$(find . -type f -name pom.xml 2>/dev/null | wc -l)
-  #         if [ "${count_maven}" -ge "1" ]; then
-  #           echo "setup_maven=false" >> $GITHUB_ENV
-  #         else
-  #           echo "setup_maven=true" >> $GITHUB_ENV
-  #         fi
+      - name: "Check Wrapper Exists"
+        run: |
+          count_maven=$(find . -type f -name mvnw 2>/dev/null | wc -l)
+          if [ "${count_maven}" -ge "1" ]; then
+            echo "setup_maven=false" >> $GITHUB_ENV
+          else
+            echo "setup_maven=true" >> $GITHUB_ENV
+          fi
 
-  #     - name: Set up Maven
-  #       if: ${{ env.setup_maven == true }}
-  #       uses: stCarolas/setup-maven@v4.3
-  #       with:
-  #         maven-version: ${{ inputs.maven-version }}
+      - name: Set up Maven
+        if: ${{ env.setup_maven == true }}
+        uses: stCarolas/setup-maven@v4.3
+        with:
+          maven-version: ${{ inputs.maven-version }}
 
-  #     - name: Maven Clean and Package
-  #       run: |
-  #         if [[ ${{ env.setup_maven }} == true ]]; then
-  #           echo "Utilizando do instalador"
-  #           mvn clean test -f pom.xml -s settings.xml
-  #           mvn jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
-  #         else
-  #           echo "Utilizando Wrapper"
-  #           ./mvnw clean test -f pom.xml -s settings.xml
-  #           ./mvnw jacoco:report surefire-report:report-only -f pom.xml -s settings.xml
-  #         fi
+      - name: Maven Clean and Package
+        run: |
+          if [[ ${{ env.setup_maven }} == true ]]; then
+            echo "Utilizando do instalador"
+            mvn ${{ inputs.maven-cli-opts }} test ${{ inputs.maven-build-parameters }};
+            mvn ${{ inputs.maven-cli-opts }} jacoco:report surefire-report:report-only ${{ inputs.maven-build-parameters }};
+          else
+            echo "Utilizando Wrapper"
+            ./mvnw ${{ inputs.maven-cli-opts }} test ${{ inputs.maven-build-parameters }};
+            ./mvnw ${{ inputs.maven-cli-opts }} jacoco:report surefire-report:report-only ${{ inputs.maven-build-parameters }};
+          fi
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ${{ inputs.project-name }}
-  #         path: |
-  #           ${{ github.workspace }}/${{ inputs.working-directory }}/target/jacoco.exec
-  #           ${{ github.workspace }}/${{ inputs.working-directory }}/target/site
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.project-name }}
+          path: |
+            ${{ github.workspace }}/${{ inputs.working-directory }}/target/jacoco.exec
+            ${{ github.workspace }}/${{ inputs.working-directory }}/target/site
