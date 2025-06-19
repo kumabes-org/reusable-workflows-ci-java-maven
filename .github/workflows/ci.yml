@@ -78,7 +78,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.project-name }}
+          name: "${{ inputs.project-name }}-build"
           path: |
             ${{ github.workspace }}/${{ inputs.working-directory }}/target/
 
@@ -125,7 +125,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.project-name }}
+          name: "${{ inputs.project-name }}-test"
           path: |
             ${{ github.workspace }}/${{ inputs.working-directory }}/target/jacoco.exec
             ${{ github.workspace }}/${{ inputs.working-directory }}/target/site
