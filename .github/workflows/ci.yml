@@ -45,8 +45,8 @@ jobs:
         shell: ${{ inputs.shell }}
         working-directory: ${{ inputs.working-directory }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ inputs.java-distribution }}
           java-version: ${{ inputs.java-version }}
@@ -76,7 +76,7 @@ jobs:
             ./mvnw ${{ inputs.maven-cli-opts }} package -DskipTests -DskipITs ${{ inputs.maven-build-parameters }};
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/setup-java@v7
         with:
           name: "${{ inputs.project-name }}-build"
           path: |
@@ -90,8 +90,8 @@ jobs:
         shell: ${{ inputs.shell }}
         working-directory: ${{ inputs.working-directory }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ inputs.java-distribution }}
           java-version: ${{ inputs.java-version }}
@@ -107,7 +107,7 @@ jobs:
 
       - name: Set up Maven
         if: ${{ env.setup_maven == true }}
-        uses: stCarolas/setup-maven@v4.3
+        uses: stCarolas/setup-maven@v5
         with:
           maven-version: ${{ inputs.maven-version }}
 
@@ -123,7 +123,7 @@ jobs:
             ./mvnw ${{ inputs.maven-cli-opts }} jacoco:report surefire-report:report-only ${{ inputs.maven-build-parameters }};
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/setup-java@v7
         with:
           name: "${{ inputs.project-name }}-test"
           path: |
