@@ -10,7 +10,7 @@ on:
         required: true
         type: string
       working-directory:
-        required: false
+        required: true
         type: string
       shell:
         required: true
@@ -76,11 +76,17 @@ jobs:
             ./mvnw ${{ inputs.maven-cli-opts }} package -DskipTests -DskipITs ${{ inputs.maven-build-parameters }};
           fi
 
+      - name: Resolve build artifact directory
+        run: |
+          TARGET=$(find . -name target -type d)
+          tmp_dir=${PWD}/${TARGET}
+          artifact_directory=$(realpath -m "$tmp_dir")
+          echo "artifact_directory=$artifact_directory" >> "$GITHUB_ENV"
+
       - uses: actions/upload-artifact@v7
         with:
           name: "${{ inputs.project-name }}-build"
-          path: |
-            ${{ github.workspace }}/${{ inputs.working-directory }}/target/
+          path: ${{ env.artifact_directory }}
 
   Test:
     name: Test
@@ -123,9 +129,16 @@ jobs:
             ./mvnw ${{ inputs.maven-cli-opts }} jacoco:report surefire-report:report-only ${{ inputs.maven-build-parameters }};
           fi
 
+      - name: Resolve test artifact directory
+        run: |
+          TARGET=$(find . -name target -type d)
+          tmp_dir=${PWD}/${TARGET}
+          artifact_directory=$(realpath -m "$tmp_dir")
+          echo "artifact_directory=$artifact_directory" >> "$GITHUB_ENV"        
+
       - uses: actions/upload-artifact@v7
         with:
           name: "${{ inputs.project-name }}-test"
           path: |
-            ${{ github.workspace }}/${{ inputs.working-directory }}/target/jacoco.exec
-            ${{ github.workspace }}/${{ inputs.working-directory }}/target/site
+            ${{ env.artifact_directory }}/jacoco.exec
+            ${{ env.artifact_directory }}/site
