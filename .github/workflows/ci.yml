@@ -72,6 +72,7 @@ jobs:
             echo "Utilizando do instalador"
             mvn ${{ inputs.maven-cli-opts }} package -DskipTests -DskipITs ${{ inputs.maven-build-parameters }};
           else
+            chmod +x ./mvnw
             echo "Utilizando Wrapper"
             ./mvnw ${{ inputs.maven-cli-opts }} package -DskipTests -DskipITs ${{ inputs.maven-build-parameters }};
           fi
@@ -124,6 +125,7 @@ jobs:
             mvn ${{ inputs.maven-cli-opts }} test ${{ inputs.maven-build-parameters }};
             mvn ${{ inputs.maven-cli-opts }} jacoco:report surefire-report:report-only ${{ inputs.maven-build-parameters }};
           else
+            chmod +x ./mvnw
             echo "Utilizando Wrapper"
             ./mvnw ${{ inputs.maven-cli-opts }} test ${{ inputs.maven-build-parameters }};
             ./mvnw ${{ inputs.maven-cli-opts }} jacoco:report surefire-report:report-only ${{ inputs.maven-build-parameters }};
